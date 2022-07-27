@@ -3,43 +3,68 @@ import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
 import './App.css';
 
 const App = () => {
-  const { transcript, listening, browserSupportSpeechRecognitio, resetTranscript } = useSpeechRecognition();
+  const commands = [
+    {
+      command: " clear ",
+      callback: ()=> resetTranscript(),
+    }
+  ];
+  const { transcript, listening, browserSupportsSpeechRecognition, resetTranscript } = useSpeechRecognition({commands});
 
-  //Using start Listening and selecting the language
-  const startListening = ()  => {
+  //Using start Listening and Adding the language
+  const startListeningEn = ()  => {
     SpeechRecognition.startListening({
       continuous: true,
       language:"en-US",
-      //language:"ar-SA",
     });
-
+  };
+  const startListeningAr = ()  => {
+    SpeechRecognition.startListening({
+      continuous: true,
+    language:"ar-SA",
+    });
   };
 
-  //Using stop listening
-  const stopListening = () => {
-    SpeechRecognition.stopListening();
-  };
-
-  // here to reset the transcript
-  const reset = () => {
-    resetTranscript();
-  };
-  
   // to chick if the browser support the speech recognition
-  if(browserSupportSpeechRecognitio){
-    return <span>Your Browser does not support Speech Recognition</span>
+  if(!browserSupportsSpeechRecognition){
+    return <span>Your Browser doesn't support speech recognition</span>
   }
 
   return (
 
-    <div className="App">
-      <button onClick={ () => {listening ? stopListening() : startListening()} }>
-      { listening ? 'Stop' : 'Start' }
+    
+    <div>
+      
+      <p> Microphone: {listening? "on" : "off"} </p>
+      
+      <p>
+      voice commands: {""}
+      {commands.map((c)=>c.command+"")}
+      </p>
+      
+      <button
+      onMouseDown={startListeningEn}
+      onMouseUp={SpeechRecognition.stopListening}
+      >
+        Hold to talk in English
       </button>
-      <button onClick={() => {reset()}}>Reset</button>
-      <p>{transcript}</p>   
+
+      <button
+      onMouseDown={startListeningAr}
+      onMouseUp={SpeechRecognition.stopListening}
+      >
+        اضغط مطولاً للتحدث بالعربية
+      </button>
+      
+      <button
+      onClick={()=> {resetTranscript();}}
+      >
+        Clear/حذف النص
+      </button>
+      
+      <p> {transcript} </p>
+    
     </div>
   );
-}
-
-export default App;
+  };
+  export default App;
